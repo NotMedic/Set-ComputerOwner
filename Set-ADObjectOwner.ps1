@@ -1,4 +1,4 @@
- <#
+  <#
 .SYNOPSIS
     Updates the owner of a specified object in Active Directory.
 
@@ -29,7 +29,7 @@ function Set-ADObjectOwner {
 
     try {
         # Get the AD objects with the specified name and filter by objectClass
-        $adObject = Get-ADObject -Filter { Name -eq $ObjectName -and (objectClass -eq 'user' -or objectClass -eq 'computer' -or objectClass -eq 'group') } -ErrorAction Stop
+        $adObject = Get-ADObject -Filter { (Name -eq $ObjectName -or SamAccountName -eq $ObjectName ) -and (objectClass -eq 'user' -or objectClass -eq 'computer' -or objectClass -eq 'group') } -ErrorAction Stop
         if (-not $adObject) {
             Write-Error "No object found with the name $ObjectName"
             return
@@ -39,8 +39,12 @@ function Set-ADObjectOwner {
         return
     }
 
+
     $objectDN = $adObject.DistinguishedName
     $sd = Get-ACL "AD:$objectDN"
+
+    write-host $ObjectDN
+    write-host $sd
 
     try {
         # Get the SID of the new owner
@@ -64,3 +68,4 @@ function Set-ADObjectOwner {
 
 # Example usage:
 # Set-ADObjectOwner -ObjectName "YourObjectName" -NewOwner "Domain Admins" 
+ 
